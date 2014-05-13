@@ -1,5 +1,5 @@
 #from google.appengine.ext.webapp.util import run_wsgi_app
-import os
+import os, sys
 from app import JsonpDataProxy
 
 application = JsonpDataProxy(3000000)
