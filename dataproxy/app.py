@@ -128,7 +128,12 @@ class JsonpDataProxy(object):
             return error(title=title, message=msg)
 
     def index(self, flow):
-        if not flow.query.has_key('url'):
+        if not from_ckan(flow.environ['HTTP_COOKIE']):
+            title = 'ckan only'
+            msg = 'Dataproxy only accepts requests from CKAN installations'
+            flow.http_response.status = '200 Error %s'%title
+            flow.http_response.body = error(title=title, message=msg)
+        elif not flow.query.has_key('url'):
             title = 'url query parameter missing'
             msg = 'Please read the dataproxy API format documentation: https://github.com/okfn/dataproxy'
             flow.http_response.status = '200 Error %s'%title
@@ -142,6 +147,13 @@ class JsonpDataProxy(object):
                 flow.http_response.status = '200 %s %s' % (e.error, e.title)
                 flow.http_response.body = error(title=e.title, message=e.message)
 
+    def from_ckan(cookies):
+        #Checks to see if there's a ckan cookie present
+        for c in cookies.split(';'):
+            t = c.split('=')
+            if t[0] == 'ckan':
+                return True
+        return False
 
     def proxy_query(self, flow, url, query):
         parts = urlparse.urlparse(url)
@@ -221,15 +233,37 @@ def transform(type_name, flow, url, query, max_results):
     if 'encoding' in query:
         encoding = query["encoding"].value
     if type_name == 'csv':
-        stream = urllib2.urlopen(url)
+        request = urllib2.Request(url, headers={"Cookie" : flow.environ['HTTP_COOKIE']})
+        try:
+            stream = urllib2.urlopen(request)
+        except urllib2.HTTPError, err:
+           if err.code == 403:
+               raise Exception("You do not have permission to access this file.")
+           else:
+               raise Exception("File could not be fetched from the filestore.")  
+        #stream = urllib2.urlopen(url)
         records, metadata = dataconverters.commas.parse(stream, encoding=encoding,
                 window=window, guess_types=guess_types)
     elif type_name == 'tsv':
-        stream = urllib2.urlopen(url)
+        request = urllib2.Request(url, headers={"Cookie" : flow.environ['HTTP_COOKIE']})
+        try:
+            stream = urllib2.urlopen(request)
+        except urllib2.HTTPError, err:
+           if err.code == 403:
+               raise Exception("You do not have permission to access this file.")
+           else:
+               raise Exception("File could not be fetched from the filestore.")
         records, metadata = dataconverters.commas.parse(stream, delimiter='\t',
                 encoding=encoding, window=window, guess_types=guess_types)
     elif type_name == 'xls' or type_name == 'xlsx':
-        stream = urllib2.urlopen(url)
+        request = urllib2.Request(url, headers={"Cookie" : flow.environ['HTTP_COOKIE']})
+        try:
+            stream = urllib2.urlopen(request)
+        except urllib2.HTTPError, err:
+           if err.code == 403:
+               raise Exception("You do not have permission to access this file.")
+           else:
+               raise Exception("File could not be fetched from the filestore.")
         length = int(stream.headers.get('content-length', 0))
         # max_length = flow.app.config.proxy.max_length
         max_length = 5000000 # ~ 5Mb
