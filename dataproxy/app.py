@@ -128,7 +128,7 @@ class JsonpDataProxy(object):
             return error(title=title, message=msg)
 
     def index(self, flow):
-        if not from_ckan(flow.environ['HTTP_COOKIE']):
+        if not self.from_ckan(flow.environ['HTTP_COOKIE']):
             title = 'ckan only'
             msg = 'Dataproxy only accepts requests from CKAN installations'
             flow.http_response.status = '200 Error %s'%title
@@ -147,7 +147,7 @@ class JsonpDataProxy(object):
                 flow.http_response.status = '200 %s %s' % (e.error, e.title)
                 flow.http_response.body = error(title=e.title, message=e.message)
 
-    def from_ckan(cookies):
+    def from_ckan(self,cookies):
         #Checks to see if there's a ckan cookie present
         for c in cookies.split(';'):
             t = c.split('=')
