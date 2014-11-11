@@ -277,7 +277,7 @@ def transform(type_name, flow, url, query, max_results):
         else:
             sheet_number = 1
         records, metadata = dataconverters.xls.parse(stream,
-                excel_type=type_name, worksheet=sheet_number,
+                excel_type=type_name,
                 guess_types=guess_types)
     else:
         raise Exception("Resource type not supported '%s'" % type_name)
