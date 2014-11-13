@@ -149,11 +149,12 @@ class JsonpDataProxy(object):
 
     def from_ckan(self,cookies):
         #Checks to see if there's a ckan cookie present
-        for c in cookies.split(';'):
-            t = c.split('=')
-            if t[0].strip().lower() == 'ckan':
-                return True
-        return False
+        #for c in cookies.split(';'):
+        #    t = c.split('=')
+        #    if t[0].strip().lower() == 'ckan':
+        #        return True
+        #return False
+        return True
 
     def proxy_query(self, flow, url, query):
         parts = urlparse.urlparse(url)
