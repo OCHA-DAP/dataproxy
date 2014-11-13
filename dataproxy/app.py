@@ -151,7 +151,7 @@ class JsonpDataProxy(object):
         #Checks to see if there's a ckan cookie present
         for c in cookies.split(';'):
             t = c.split('=')
-            if t[0] == 'ckan':
+            if t[0].strip().lower() == 'ckan':
                 return True
         return False
 
