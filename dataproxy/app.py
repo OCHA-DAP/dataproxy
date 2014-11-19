@@ -233,37 +233,15 @@ def transform(type_name, flow, url, query, max_results):
     if 'encoding' in query:
         encoding = query["encoding"].value
     if type_name == 'csv':
-        request = urllib2.Request(url, headers={"Cookie" : flow.environ['HTTP_COOKIE']})
-        try:
-            stream = urllib2.urlopen(request)
-        except urllib2.HTTPError, err:
-           if err.code == 403:
-               raise Exception("You do not have permission to access this file.")
-           else:
-               raise Exception("File could not be fetched from the filestore.")  
-        #stream = urllib2.urlopen(url)
+        stream = create_stream(flow, url)
         records, metadata = dataconverters.commas.parse(stream, encoding=encoding,
                 window=window, guess_types=guess_types)
     elif type_name == 'tsv':
-        request = urllib2.Request(url, headers={"Cookie" : flow.environ['HTTP_COOKIE']})
-        try:
-            stream = urllib2.urlopen(request)
-        except urllib2.HTTPError, err:
-           if err.code == 403:
-               raise Exception("You do not have permission to access this file.")
-           else:
-               raise Exception("File could not be fetched from the filestore.")
+        stream = create_stream(flow, url)
         records, metadata = dataconverters.commas.parse(stream, delimiter='\t',
                 encoding=encoding, window=window, guess_types=guess_types)
     elif type_name == 'xls' or type_name == 'xlsx':
-        request = urllib2.Request(url, headers={"Cookie" : flow.environ['HTTP_COOKIE']})
-        try:
-            stream = urllib2.urlopen(request)
-        except urllib2.HTTPError, err:
-           if err.code == 403:
-               raise Exception("You do not have permission to access this file.")
-           else:
-               raise Exception("File could not be fetched from the filestore.")
+        stream = create_stream(flow, url)
         length = int(stream.headers.get('content-length', 0))
         # max_length = flow.app.config.proxy.max_length
         max_length = 5000000 # ~ 5Mb
@@ -283,6 +261,37 @@ def transform(type_name, flow, url, query, max_results):
         raise Exception("Resource type not supported '%s'" % type_name)
     return (records, metadata)
 
+def from_hdx(url):
+    p = re.compile("hdx.rwlabs.org")
+    for m in p.finditer(url):
+        #https://data. 13
+        #http://data. 12
+        #https://dev-data. 17
+        #http://dev-data. 16
+        #https://test-data. 18
+        #http://test-data. 17
+        if m.start() < 19:
+            return True
+        else:
+            return False
+
+def create_stream(flow, url):
+    hdx = from_hdx(flow.query['url'])
+    if hdx:
+        request = urllib2.Request(url, headers={"Cookie" : flow.environ['HTTP_COOKIE']})
+        try:
+            stream = urllib2.urlopen(request)
+        except urllib2.HTTPError, err:
+            if err.code == 403:
+                raise Exception("You do not have permission to access this file.")
+            else:
+                if hdx:
+                    raise Exception("File could not be fetched from filestore.")
+                else:
+                    raise Exception("File could not be fetched.")
+    else:
+        stream = urllib2.urlopen(url)
+    return stream
 
 if __name__ == '__main__':
     from wsgiref.util import setup_testing_defaults
