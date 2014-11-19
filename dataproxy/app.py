@@ -95,6 +95,8 @@ class JsonpDataProxy(object):
         flow['app']['config'] = AttributeDict()
         flow['app']['config']['proxy'] = AttributeDict(max_length=int(self.max_length))
         flow['environ'] = environ
+        if not 'HTTP_COOKIE' in flow.environ:
+            flow['environ']['HTTP_COOKIE'] = ''
         flow['http_response'] = HTTPResponseMarble()
         flow.http_response.header_list = [
             dict(name='Content-Type', value='application/javascript'),
@@ -128,7 +130,7 @@ class JsonpDataProxy(object):
             return error(title=title, message=msg)
 
     def index(self, flow):
-        if not 'HTTP_COOKIE' in flow.environ or not self.from_ckan(flow.environ['HTTP_COOKIE']):
+        if not self.from_ckan(flow.environ['HTTP_COOKIE']):
             title = 'ckan only'
             msg = 'Dataproxy only accepts requests from CKAN installations'
             flow.http_response.status = '200 Error %s'%title
