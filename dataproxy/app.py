@@ -273,7 +273,7 @@ def from_hdx(url):
         return False
 
 def create_stream(flow, url):
-    hdx = from_hdx(flow.query['url'])
+    hdx = from_hdx(url)
     if hdx:
         request = urllib2.Request(url, headers={"Cookie" : flow.environ['HTTP_COOKIE']})
         try:
