@@ -263,18 +263,12 @@ def transform(type_name, flow, url, query, max_results):
     return (records, metadata)
 
 def from_hdx(url):
-    p = re.compile("hdx.rwlabs.org")
-    for m in p.finditer(url):
-        #https://data. 13
-        #http://data. 12
-        #https://dev-data. 17
-        #http://dev-data. 16
-        #https://test-data. 18
-        #http://test-data. 17
-        if m.start() < 19:
-            return True
-        else:
-            return False
+    url = urlparse.urlparse(url)
+    url = url.netloc.split(':')
+    if url[0][-14:] == 'hdx.rwlabs.org':
+        return True
+    else:
+        return False
 
 def create_stream(flow, url):
     hdx = from_hdx(flow.query['url'])
