@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv sh
+
+#cd /srv/dataproxy/dataproxy
+
+exec gunicorn dataproxy:application --chdir /srv/dataproxy/dataproxy -c /srv/config/gunicorn_conf.py
