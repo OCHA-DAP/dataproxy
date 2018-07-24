@@ -1,20 +1,11 @@
-FROM alpine:3.6
-
-ARG S6_VERSION=1.21.2.1
+FROM unocha/alpine-base-s6-python2:3.8
 
 WORKDIR /srv/dataproxy
 
 COPY . .
 
-RUN apk add --update --no-cache \
-        python && \
-    python -m ensurepip && \
-    rm -r /usr/lib/python*/ensurepip && \
-    pip install --upgrade pip setuptools && \
-    apk add --update-cache \
-        curl \
+RUN apk add --update-cache \
         git \
-        nano \
         py-lxml && \
     pip -q install --upgrade \
         gunicorn \
@@ -28,20 +19,14 @@ RUN apk add --update --no-cache \
     touch /var/log/dataproxy/dataproxy.error.log && \
     git submodule init dataproxy && \
     git submodule update dataproxy && \
-    apk add --virtual .gevent-deps \
+    apk add ---update-cache \
         build-base \
         python-dev && \
     pip install gevent && \
     apk del \
-        .gevent-deps && \
+        build-base \
+        python-dev && \
     rm -r /root/.cache && \
-    rm -rf /var/cache/apk/* && \
-    curl -sL https://github.com/just-containers/s6-overlay/releases/download/v${S6_VERSION}/s6-overlay-amd64.tar.gz -o /tmp/s6.tgz && \
-    tar xzf /tmp/s6.tgz -C / && \
-    rm -f /tmp/s6.tgz
+    rm -rf /var/cache/apk/*
 
 EXPOSE 5000
-
-ENTRYPOINT ["/init"]
-
-CMD []
