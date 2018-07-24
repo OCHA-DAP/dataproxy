@@ -19,7 +19,7 @@ RUN apk add --update-cache \
     touch /var/log/dataproxy/dataproxy.error.log && \
     git submodule init dataproxy && \
     git submodule update dataproxy && \
-    apk add ---update-cache \
+    apk add --update-cache \
         build-base \
         python-dev && \
     pip install gevent && \
