@@ -266,8 +266,8 @@ def transform(type_name, flow, url, query, max_results):
 
 def from_hdx(url):
     url = urlparse.urlparse(url)
-    url = url.netloc.split(':')
-    if url[0][-14:] == 'hdx.rwlabs.org':
+    # url = url.netloc.split(':')
+    if url.netloc.endswith(('data.humdata.org', 'data.humdata.local')):
         return True
     else:
         return False
