@@ -275,7 +275,6 @@ def from_hdx(url):
 def create_stream(flow, url):
     hdx = from_hdx(url)
     if hdx:
-        request = urllib2.Request(url, headers={"Cookie" : flow.environ['HTTP_COOKIE']})
         request = urllib2.Request(url, headers={"Cookie" : flow.environ['HTTP_COOKIE'], 'User-Agent': os.getenv('HDX_USER_AGENT','HDXINTERNAL_DATAPROXY')})
         try:
             stream = urllib2.urlopen(request)
