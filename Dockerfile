@@ -23,6 +23,7 @@ RUN apk add --update-cache \
         build-base \
         python-dev && \
     pip install gevent && \
+    pip install -r requirements.txt && \
     apk del \
         build-base \
         python-dev && \
