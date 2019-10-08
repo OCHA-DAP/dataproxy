@@ -10,6 +10,7 @@ RUN apk add --update-cache \
     pip -q install --upgrade \
         gunicorn \
         html5lib \
+        xlrd==1.2.0 \
         json-table-schema && \
     mkdir -p /srv/config /etc/services.d/dataproxy && \
     cp docker/gunicorn_conf.py /srv/config && \
