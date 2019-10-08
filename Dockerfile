@@ -11,6 +11,7 @@ RUN apk add --update-cache \
         gunicorn \
         html5lib \
         xlrd==1.2.0 \
+        python-dateutil==2.8.0 \
         json-table-schema && \
     mkdir -p /srv/config /etc/services.d/dataproxy && \
     cp docker/gunicorn_conf.py /srv/config && \
@@ -24,7 +25,6 @@ RUN apk add --update-cache \
         build-base \
         python-dev && \
     pip install gevent && \
-    pip install -r requirements.txt && \
     apk del \
         build-base \
         python-dev && \
